@@ -3,6 +3,8 @@ service: slackbot-reginald
 provider:
   name: aws
   runtime: nodejs4.3
+  stage: dev
+  region: us-west-2
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
 #    - Effect: "Allow"
@@ -18,13 +20,10 @@ provider:
 #          - - "arn:aws:s3:::"
 #            - "Ref" : "ServerlessDeploymentBucket"
 
-defaults:
-  stage: dev
-  region: us-west-2
-
 package:
   include:
     - lib
+    - func
   exclude:
     - .git
     - .gitignore

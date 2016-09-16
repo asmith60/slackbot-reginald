@@ -1,0 +1,24 @@
+{
+  "name": "slackbot-reginald",
+  "version": "1.0.0",
+  "description": "Reginald the Slackbot",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asmith60/slackbot-reginald.git"
+  },
+  "keywords": [
+    "slack",
+    "bot",
+    "reginald"
+  ],
+  "author": "SusanElizabeth and asmith60",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/asmith60/slackbot-reginald/issues"
+  },
+  "homepage": "https://github.com/asmith60/slackbot-reginald#readme"
+}

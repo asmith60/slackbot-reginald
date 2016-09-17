@@ -1,13 +1,21 @@
 'use strict';
 
+var Functions = require('require-directory')(module, './func');
+
 module.exports.gateway = function(event, context, cb) {
-  cb(null, { message: 'Gateway handler'});
+    Functions.gateway.main(null, null, function(err, data) {
+        cb(null, data);
+    });
 };
 
 module.exports.participation = function(event, context, cb) {
-  cb(null, { message: 'Participation handler'});
+    Functions.participation.main(null, null, function(err, data) {
+        cb(null, data);
+    });
 };
 
 module.exports.positivity = function(event, context, cb) {
-  cb(null, { message: 'Positivity handler'});
+    Functions.positivity.main(null, null, function(err, data) {
+        cb(null, data);
+    });
 };

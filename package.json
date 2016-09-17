@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/asmith60/slackbot-reginald#readme",
   "dependencies": {
-    "require-directory": "^2.1.1"
+    "require-directory": "^2.1.1",
+    "sentiment": "^2.0.0"
   }
 }

@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/asmith60/slackbot-reginald/issues"
   },
-  "homepage": "https://github.com/asmith60/slackbot-reginald#readme"
+  "homepage": "https://github.com/asmith60/slackbot-reginald#readme",
+  "dependencies": {
+    "require-directory": "^2.1.1"
+  }
 }

@@ -41,6 +41,8 @@ functions:
     handler: handler.participation
   positivity:
     handler: handler.positivity
+  conceited:
+    handler: handler.conceited
 
 
 # you can add CloudFormation resource templates here

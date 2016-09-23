@@ -89,7 +89,7 @@ module.exports.main = function(event, context, callback) {
                             FunctionName: arns.conceited,
                             Payload: payload,
                         };
-                        lambda.invoke(params, function(error, conceited) {
+                        lambda.invoke(params, function(error, response) {
                             if (error) {
                                 console.error("Error invoking participation function - " + error)
                                 cb(error);

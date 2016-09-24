@@ -1,6 +1,6 @@
 'use strict';
 
-var Functions = require('require-directory')(module, './func');
+var Functions = require('require-directory')(module, './functions');
 
 module.exports.gateway = function(event, context, callback) {
     Functions.gateway.main(event, context, function(err, data) {

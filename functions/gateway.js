@@ -7,16 +7,14 @@ var Config = require('../lib/config.js');
 
 module.exports.main = function(event, context, callback) {
     if (!event.body.channel_id) {
-        var err = "Could not retrieve channel id from event";
-        console.error(err)
-        callback(err);
+        console.error("Could not retrieve channel id from event");
+        callback(true);
         return;
     }
 
     if (!event.body.user_id) {
-        var err = "Could not retrieve user id from event";
-        console.error(err)
-        callback(err);
+        console.error("Could not retrieve user id from event");
+        callback(true);
         return;
     }
 
@@ -30,9 +28,8 @@ module.exports.main = function(event, context, callback) {
                 };
                 slack.api(Config.channelHistoryEndpoint, params, function(err, data) {
                     if (err || data.ok === 'true') {
-                        var error = "Error calling Slack API for channel history - " + err;
-                        console.error(error);
-                        cb(error);
+                        console.error("Error calling Slack API for channel history");
+                        cb(err);
                         return;
                     }
                     cb(null, data.messages);
@@ -61,7 +58,7 @@ module.exports.main = function(event, context, callback) {
                         };
                         lambda.invoke(params, function(error, response) {
                             if (error) {
-                                console.error("Error invoking participation function - " + error)
+                                console.error("Error invoking participation function");
                                 cb(error);
                                 return;
                             }
@@ -76,7 +73,7 @@ module.exports.main = function(event, context, callback) {
                         };
                         lambda.invoke(params, function(error, response) {
                             if (error) {
-                                console.error("Error invoking positivity function - " + error)
+                                console.error("Error invoking positivity function");
                                 cb(error);
                                 return;
                             }
@@ -91,7 +88,7 @@ module.exports.main = function(event, context, callback) {
                         };
                         lambda.invoke(params, function(error, response) {
                             if (error) {
-                                console.error("Error invoking participation function - " + error)
+                                console.error("Error invoking participation function");
                                 cb(error);
                                 return;
                             }

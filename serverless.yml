@@ -14,7 +14,7 @@ provider:
 package:
   include:
     - lib
-    - func
+    - functions
     - .env
   exclude:
     - .git

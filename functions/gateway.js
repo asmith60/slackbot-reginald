@@ -1,9 +1,9 @@
 'use strict';
 
 var Slack = require('slack-node');
-var AWS = require('aws-sdk');
 var Async = require('async');
 var Config = require('../lib/config.js');
+var Utils = require('../lib/utils.js');
 
 module.exports.main = function(event, context, callback) {
     if (!event.body.channel_id) {
@@ -17,8 +17,6 @@ module.exports.main = function(event, context, callback) {
         callback(true);
         return;
     }
-
-    var userId = event.body.user_id;
 
     Async.series([
             function(cb) {
@@ -39,77 +37,37 @@ module.exports.main = function(event, context, callback) {
         function(err, data) {
             if (err) {
                 console.error(err);
-                callback(err);
+                callback(true);
                 return;
             }
 
-            var arns = Config.getArns(event.stage);
-            var lambda = new AWS.Lambda();
             var payload = JSON.stringify({
                 userId: event.body.user_id,
                 messages: data[0]
             });
 
-            Async.parallel({
-                    participation: function(cb) {
-                        var params = {
-                            FunctionName: arns.participation,
-                            Payload: payload,
-                        };
-                        lambda.invoke(params, function(error, response) {
-                            if (error) {
-                                console.error("Error invoking participation function");
-                                cb(error);
-                                return;
-                            }
+            var functions = Utils.getFunctions(event.stage, event.body.text, payload);
 
-                            callback(null, response);
-                        });
-                    },
-                    positivity: function(cb) {
-                        var params = {
-                            FunctionName: arns.positivity,
-                            Payload: payload,
-                        };
-                        lambda.invoke(params, function(error, response) {
-                            if (error) {
-                                console.error("Error invoking positivity function");
-                                cb(error);
-                                return;
-                            }
+            if (!functions) {
+              console.log("Error unknown arguments");
+              callback(true);
+              return;
+            }
 
-                            callback(null, response);
-                        });
-                    },
-                    conceited: function(cb) {
-                        var params = {
-                            FunctionName: arns.conceited,
-                            Payload: payload,
-                        };
-                        lambda.invoke(params, function(error, response) {
-                            if (error) {
-                                console.error("Error invoking participation function");
-                                cb(error);
-                                return;
-                            }
+            Async.parallel(functions, function(error, results) {
+                if (error) {
+                    console.error("Error invoking child lambda function");
+                    console.error(error);
+                    callback(error);
+                    return;
+                }
 
-                            callback(null, response);
-                        });
-                    }
-                },
-                function(error, results) {
-                    if (error) {
-                        console.error("Error invoking child lambda function - " + error)
-                        callback(error);
-                        return;
-                    }
+                console.log(results);
 
-                    console.log(results);
-
-                    callback(null, {
-                        response: results
-                    });
+                callback(null, {
+                    response: results
                 });
+            });
 
         });
 };

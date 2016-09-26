@@ -10,6 +10,11 @@ provider:
       Action:
         - "lambda:InvokeFunction"
       Resource: ["arn:aws:lambda:*:*:function:slackbot-reginald*"]
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:GetItem"
+        - "dynamodb:PutItem"
+      Resource: ["arn:aws:dynamodb:*:*:table/Teams"]
 
 package:
   include:
@@ -28,6 +33,12 @@ functions:
       - http:
           path: reginald
           method: post
+  oauth:
+    handler: handler.oauth
+    events:
+      - http:
+          path: reginald/oauth
+          method: get
   participation:
     handler: handler.participation
   positivity:
@@ -36,14 +47,18 @@ functions:
     handler: handler.conceited
 
 
-# you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+resources:
+  Resources:
+    TeamTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: teamId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: teamId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 10
+        TableName: Teams

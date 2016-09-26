@@ -43,3 +43,13 @@ module.exports.conceited = function(event, context, callback) {
         callback(null, data);
     });
 };
+
+module.exports.oauth = function(event, context, callback) {
+    Functions.oauth.main(event, context, function(err, data) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        callback(null, data);
+    });
+};

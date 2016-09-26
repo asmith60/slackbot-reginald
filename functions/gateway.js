@@ -1,6 +1,7 @@
 'use strict';
 
 //Import
+var AWS = require('aws-sdk');
 var Slack = require('slack-node');
 var Async = require('async');
 var Config = require('../lib/config.js');
@@ -22,21 +23,26 @@ module.exports.main = function(event, context, callback) {
         return;
     }
 
-    //Get channel history, then invoke child functions
+    //Get Oauth info, then invoke channel history
     Async.series([
             function(cb) {
-                var slack = new Slack(Config.devToken);
+                var dynamodb = new AWS.DynamoDB();
                 var params = {
-                    channel: event.body.channel_id
+                    TableName: Config.teamsTableName,
+                    Key: {
+                        teamId: {
+                            S: event.body.team_id
+                        }
+                    }
                 };
                 //Call Slack API to get history
-                slack.api(Config.channelHistoryEndpoint, params, function(err, data) {
-                    if (err || data.ok !== true) {
-                        console.error("Error calling Slack API for channel history");
-                        cb(err);
+                dynamodb.getItem(params, function(err, data) {
+                    if (err) {
+                        console.error(err);
+                        cb("Error retrieving Oauth info");
                         return;
                     }
-                    cb(null, data.messages);
+                    cb(null, data);
                 });
             }
         ],
@@ -47,44 +53,88 @@ module.exports.main = function(event, context, callback) {
                 return;
             }
 
-            //Create payload for child functions
-            var payload = JSON.stringify({
-                userId: event.body.user_id,
-                messages: data[0]
-            });
+            var token = data[0].Item.accessToken.S;
 
-            //Get function based on text argument
-            var functions = Utils.getFunctions(event.stage, event.body.text, payload);
-
-            //If no functions are returned, return an error
-            if (!functions) {
-                console.log("Error unknown arguments");
+            if (!token) {
+                console.error("Error token not found");
                 callback(true);
-                return;
             }
 
-            Async.parallel(functions, function(error, results) {
-                if (error) {
-                    console.error("Error invoking child lambda function");
-                    console.error(error);
-                    callback(true);
-                    return;
+            //Get Slack channel history, then call child functions
+            Async.series([
+                    function(cb) {
+                        //Construct slack API object with Oauth token
+                        var slack = new Slack(token);
+                        //Build params
+                        var params = {
+                            channel: event.body.channel_id
+                        };
+                        //Call Slack API to get history
+                        slack.api(Config.channelHistoryEndpoint, params, function(error, response) {
+                            if (error) {
+                                console.error("Error calling Slack API for channel history");
+                                cb(error);
+                                return;
+                            }
+                            if (response.ok !== true) {
+                                console.error("Error with Slack API channel history response");
+                                cb(response);
+                                return;
+                            }
+                            cb(null, response.messages);
+                        });
+                    }
+                ],
+                function(error, response) {
+                    if (error) {
+                        console.error(error);
+                        callback(true);
+                        return;
+                    }
+
+                    var messages = response[0];
+
+                    //Create payload for child functions
+                    var payload = JSON.stringify({
+                        userId: event.body.user_id,
+                        messages: messages
+                    });
+
+                    //Get function based on text argument
+                    var functions = Utils.getFunctions(event.stage, event.body.text, payload);
+
+                    //If no functions are returned, return an error
+                    if (!functions) {
+                        console.log("Error unknown arguments");
+                        callback(true);
+                        return;
+                    }
+
+                    Async.parallel(functions, function(functionError, results) {
+                        if (functionError) {
+                            console.error("Error invoking child lambda function");
+                            console.error(functionError);
+                            callback(true);
+                            return;
+                        }
+
+                        var text = "";
+
+                        //Loop through child function results and format for Slack
+                        Object.keys(results).forEach(function(key) {
+                            text = text + results[key].Payload + "\n";
+                        });
+
+                        console.log(text);
+
+                        console.log("End gateway function");
+
+                        callback(null, {
+                            text: text
+                        });
+                    });
                 }
-
-                var response = "";
-
-                //Loop through child function results and format for Slack
-                Object.keys(results).forEach(function(key) {
-                    response = response + results[key].Payload + "\n";
-                });
-
-                console.log(response);
-
-                console.log("End gateway function");
-
-                callback(null, {
-                    text: response
-                });
-            });
-        });
+            );
+        }
+    );
 };

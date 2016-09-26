@@ -7,6 +7,7 @@ var Config = require('../lib/config.js');
 var Utils = require('../lib/utils.js');
 
 module.exports.main = function(event, context, callback) {
+    console.log("Begin gateway function");
     //Validate channel ID exists
     if (!event.body.channel_id) {
         console.error("Could not retrieve channel id from event");
@@ -70,12 +71,20 @@ module.exports.main = function(event, context, callback) {
                     return;
                 }
 
-                console.log(results);
+                var response = "";
+
+                //Loop through child function results and format for Slack
+                Object.keys(results).forEach(function(key) {
+                    response = response + results[key].Payload + "\n";
+                });
+
+                console.log(response);
+
+                console.log("End gateway function");
 
                 callback(null, {
-                    response: results
+                    text: response
                 });
             });
-
         });
 };

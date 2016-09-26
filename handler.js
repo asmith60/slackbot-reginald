@@ -10,7 +10,7 @@ module.exports.gateway = function(event, context, callback) {
             });
             return;
         }
-        callback(null, "gateway");
+        callback(null, data);
     });
 };
 
@@ -20,7 +20,7 @@ module.exports.participation = function(event, context, callback) {
             callback(err);
             return;
         }
-        callback(null, "participation");
+        callback(null, data);
     });
 };
 
@@ -30,7 +30,7 @@ module.exports.positivity = function(event, context, callback) {
             callback(err);
             return;
         }
-        callback(null, "positivity");
+        callback(null, data);
     });
 };
 
@@ -40,6 +40,6 @@ module.exports.conceited = function(event, context, callback) {
             callback(err);
             return;
         }
-        callback(null, "conceited");
+        callback(null, data);
     });
 };

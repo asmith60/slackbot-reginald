@@ -1,18 +1,21 @@
 'use strict';
 
 module.exports.main = function(event, context, callback) {
-    var response = 0,
+    var response = "",
         count = 0,
         total = 0,
+        result = 0,
         userId = event.userId;
-     event.messages.forEach(function (message) {
-       if (message.user == userId) {
-           count++;
-       }
-       total++;
-     });
+    event.messages.forEach(function(message) {
+        if (message.user == userId) {
+            count++;
+        }
+        total++;
+    });
 
-    response = ("Your level of participation in this channel is " + (count / total) * 100) + "%.";
+    result = ((count / total) * 100).toFixed(2);
+
+    response = "Your level of participation in this channel is " + result + "%";
 
     callback(null, response);
 };

@@ -3,8 +3,8 @@
 var sentiment = require('sentiment');
 
 module.exports.main = function(event, context, callback) {
-    var count = 0,
-        posNeg = 0,
+    var result = 0,
+        response = "",
         score = 0,
         message = "",
         words = 0,
@@ -31,8 +31,7 @@ module.exports.main = function(event, context, callback) {
           //do validation for if nothing positive is returned
         }
     });
-    count = (score / (words * 4)) * 100;
-    posNeg = count.toFixed(2) + "%";
-    console.log("posNeg " + posNeg);
-    callback(null, posNeg);
+    result = ((score / (words * 4)) * 100).toFixed(2);
+    response = "Your level of positivity in this channel is " + result + "%";
+    callback(null, response);
 };

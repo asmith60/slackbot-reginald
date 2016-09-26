@@ -118,20 +118,22 @@ module.exports.main = function(event, context, callback) {
                             return;
                         }
 
-                        var text = "";
+                        var attachments = [];
 
-                        //Loop through child function results and format for Slack
+                        //Loop through child function results and push to attachments array
                         Object.keys(results).forEach(function(key) {
-                            text = text + results[key].Payload + "\n";
+                            attachments.push(JSON.parse(results[key].Payload));
                         });
 
-                        console.log(text);
+                        var message = {
+                            attachments: attachments
+                        };
+
+                        console.log(message);
 
                         console.log("End gateway function");
 
-                        callback(null, {
-                            text: text
-                        });
+                        callback(null, message);
                     });
                 }
             );

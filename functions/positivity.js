@@ -27,11 +27,20 @@ module.exports.main = function(event, context, callback) {
             }
             console.log("words " + words);
             console.log("score " + score);
-            console.log("most positive message: "+ posMessage );
-          //do validation for if nothing positive is returned
+            console.log("most positive message: " + posMessage);
+            //do validation for if nothing positive is returned
         }
     });
     result = ((score / (words * 4)) * 100).toFixed(2);
-    response = "Your level of positivity in this channel is " + result + "%";
+    response = {
+        pretext: "Positivity",
+        fields: [{
+            title: "Score",
+            value: result + "%"
+        }, {
+            title: "Most Positive Post",
+            value: "\"" + posMessage  + "\""
+        }]
+    };
     callback(null, response);
 };

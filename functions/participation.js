@@ -15,7 +15,13 @@ module.exports.main = function(event, context, callback) {
 
     result = ((count / total) * 100).toFixed(2);
 
-    response = "Your level of participation in this channel is " + result + "%";
+    response = {
+        pretext: "Participation",
+        fields: [{
+            title: "Score",
+            value: result + "%"
+        }]
+    };
 
     callback(null, response);
 };

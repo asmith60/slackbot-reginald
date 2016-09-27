@@ -7,17 +7,17 @@ module.exports.main = function(event, context, callback) {
         response = "",
         message = "",
         temp = 0,
-        posMessage = "",
+        negMessage = "",
         add = 0,
         userId = event.userId;
     event.messages.forEach(function(data) {
         if (data.user === userId) {
             message = sentiment(data.text);
-            if (message.score > 0) {
+            if (message.score < 0) {
                 add++;
-                if (message.score > temp) {
+                if (message.score < temp) {
                     temp = message.score;
-                    posMessage = data.text;
+                    negMessage = data.text;
                 }
             }
         }
@@ -27,21 +27,21 @@ module.exports.main = function(event, context, callback) {
     }
     if (result > 0) {
         response = {
-            pretext: "Positivity",
+            pretext: "Negativity",
             fields: [{
                 title: "Score",
-                value: result + "%" + " of your posts in this channel are positive."
+                value: result + "%" + " of your posts in this channel are negative."
             }, {
-                title: "Most Positive Post",
-                value: "\"" + posMessage + "\""
+                title: "Most Negative Post",
+                value: "\"" + negMessage + "\""
             }]
         };
     } else {
         response = {
-            pretext: "Positivity",
+            pretext: "Negativity",
             fields: [{
                 title: "Score",
-                value: "You haven't written any positive posts in this channel " + ":worried:"
+                value: "You haven't written any negative posts in this channel " + ":relieved:"
             }]
         };
     }

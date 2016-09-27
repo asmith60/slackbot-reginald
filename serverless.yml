@@ -43,8 +43,10 @@ functions:
     handler: handler.participation
   positivity:
     handler: handler.positivity
-  conceited:
-    handler: handler.conceited
+  negativity:
+    handler: handler.negativity
+  conceit:
+    handler: handler.conceit
 
 
 resources:

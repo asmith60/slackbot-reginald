@@ -34,8 +34,18 @@ module.exports.positivity = function(event, context, callback) {
     });
 };
 
-module.exports.conceited = function(event, context, callback) {
-    Functions.conceited.main(event, context, function(err, data) {
+module.exports.negativity = function(event, context, callback) {
+    Functions.negativity.main(event, context, function(err, data) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+module.exports.conceit = function(event, context, callback) {
+    Functions.conceit.main(event, context, function(err, data) {
         if (err) {
             callback(err);
             return;

@@ -13,13 +13,13 @@ module.exports.main = function(event, context, callback) {
         total++;
     });
 
-    result = ((count / total) * 100).toFixed(2);
+    result = ((count / total) * 100).toFixed(0);
 
     response = {
         pretext: "Participation",
         fields: [{
             title: "Score",
-            value: result + "%"
+            value: result + "% of the posts in this channel were penned by you."
         }]
     };
 

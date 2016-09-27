@@ -20,3 +20,9 @@ Reginald gives you information about your in-chat behavior. He analyzes 4 metric
   * ```/reginald participation positivity```
 * Make a report public
   * ```/reginald public participation```
+
+## Bugs and Features
+
+If you find a bug in the project or a mistake in the documentation, you can help us by submitting an issue to the [slackbot-reginald repository](https://github.com/asmith60/slackbot-reginald/issues) . Even better you can submit a pull request with a fix :) !
+
+You can request a new feature by submitting an issue to the [slackbot-reginald repository](https://github.com/asmith60/slackbot-reginald/issues) .

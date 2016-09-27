@@ -25,7 +25,18 @@ module.exports.main = function(event, context, callback) {
     result = ((count / total) * 100).toFixed(0);
 
     if (result > 0) {
+
+        var color;
+        if (result < 7) {
+            color = "good";
+        } else if (result < 14) {
+            color = "warning";
+        } else {
+            color = "danger";
+        }
+
         response = {
+            color: color,
             pretext: "Conceit",
             fields: [{
                 title: "Score",
@@ -34,6 +45,7 @@ module.exports.main = function(event, context, callback) {
         };
     } else {
         response = {
+            color: "good",
             pretext: "Conceit",
             fields: [{
                 title: "Score",

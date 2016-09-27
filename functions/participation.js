@@ -16,6 +16,7 @@ module.exports.main = function(event, context, callback) {
     result = ((count / total) * 100).toFixed(0);
 
     response = {
+        color: "#439FE0",
         pretext: "Participation",
         fields: [{
             title: "Score",

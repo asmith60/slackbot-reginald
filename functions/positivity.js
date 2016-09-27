@@ -26,7 +26,18 @@ module.exports.main = function(event, context, callback) {
         result = ((add / event.messages.length) * 100).toFixed(0);
     }
     if (result > 0) {
+
+        var color;
+        if (result < 7) {
+            color = "danger";
+        } else if (result < 14) {
+            color = "warning";
+        } else {
+            color = "good";
+        }
+
         response = {
+            color: color,
             pretext: "Positivity",
             fields: [{
                 title: "Score",
@@ -38,6 +49,7 @@ module.exports.main = function(event, context, callback) {
         };
     } else {
         response = {
+            color: "danger",
             pretext: "Positivity",
             fields: [{
                 title: "Score",

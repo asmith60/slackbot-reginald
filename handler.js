@@ -9,7 +9,7 @@ module.exports.gateway = function(event, context, callback) {
         message.response_type = "ephemeral";
     }
     Utils.sendWebhook(event.body.response_url, message);
-    message.text = "*End Report";
+    message.text = "*End Report*";
     callback(null, message);
     var Gateway = require("./functions/gateway.js");
     Gateway.main(event, context);

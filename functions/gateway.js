@@ -25,7 +25,7 @@ module.exports.main = function(event, context) {
 
     if (event.body.text.split(" ")[0] === "help") {
         console.log("Responding with \"help\" output");
-        Utils.sendWebhook(event.body.response_url, Config.errorMessage);
+        Utils.sendWebhook(event.body.response_url, Config.helpMessage);
         return;
     }
 

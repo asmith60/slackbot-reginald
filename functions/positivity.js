@@ -23,7 +23,7 @@ module.exports.main = function(event, context, callback) {
         }
     });
     if (add > 0) {
-        result = ((event.messages.length / add)).toFixed(0);
+        result = ((add / event.messages.length) * 100).toFixed(0);
     }
     if (result > 0) {
         response = {

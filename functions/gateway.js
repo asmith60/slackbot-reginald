@@ -23,6 +23,12 @@ module.exports.main = function(event, context, callback) {
         return;
     }
 
+    if (event.body.text.split(" ")[0] === "help") {
+        console.log("Responding with \"help\" output");
+        callback(null, Config.helpMessage);
+        return;
+    }
+
     //Get Oauth info, then invoke channel history
     Async.series([
             function(cb) {
@@ -105,7 +111,7 @@ module.exports.main = function(event, context, callback) {
 
                     //If no functions are returned, return an error
                     if (!functions) {
-                        console.log("Error unknown arguments");
+                        console.log("Error getting functions");
                         callback(true);
                         return;
                     }
@@ -128,6 +134,10 @@ module.exports.main = function(event, context, callback) {
                         var message = {
                             attachments: attachments
                         };
+
+                        if (event.body.text.split(" ").indexOf("public") > -1) {
+                          message.response_type = "in_channel";
+                        }
 
                         console.log(message);
 

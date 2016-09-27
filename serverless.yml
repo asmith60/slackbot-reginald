@@ -29,6 +29,7 @@ package:
 functions:
   gateway:
     handler: handler.gateway
+    memorySize: 1536
     events:
       - http:
           path: reginald

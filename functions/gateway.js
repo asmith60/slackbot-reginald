@@ -7,25 +7,25 @@ var Async = require('async');
 var Config = require('../lib/config.js');
 var Utils = require('../lib/utils.js');
 
-module.exports.main = function(event, context, callback) {
+module.exports.main = function(event, context) {
     console.log("Begin gateway function");
     //Validate channel ID exists
     if (!event.body.channel_id) {
         console.error("Could not retrieve channel id from event");
-        callback(true);
+        Utils.sendWebhook(event.body.response_url, Config.errorMessage);
         return;
     }
 
     //Validate user ID exists
     if (!event.body.user_id) {
         console.error("Could not retrieve user id from event");
-        callback(true);
+        Utils.sendWebhook(event.body.response_url, Config.errorMessage);
         return;
     }
 
     if (event.body.text.split(" ")[0] === "help") {
         console.log("Responding with \"help\" output");
-        callback(null, Config.helpMessage);
+        Utils.sendWebhook(event.body.response_url, Config.errorMessage);
         return;
     }
 
@@ -55,7 +55,7 @@ module.exports.main = function(event, context, callback) {
         function(err, data) {
             if (err) {
                 console.error(err);
-                callback(true);
+                Utils.sendWebhook(event.body.response_url, Config.errorMessage);
                 return;
             }
 
@@ -63,7 +63,8 @@ module.exports.main = function(event, context, callback) {
 
             if (!token) {
                 console.error("Error token not found");
-                callback(true);
+                Utils.sendWebhook(event.body.response_url, Config.errorMessage);
+                return;
             }
 
             //Get Slack channel history, then call child functions
@@ -73,7 +74,8 @@ module.exports.main = function(event, context, callback) {
                         var slack = new Slack(token);
                         //Build params
                         var params = {
-                            channel: event.body.channel_id
+                            channel: event.body.channel_id,
+                            count: 1000
                         };
                         //Call Slack API to get history
                         slack.api(Config.channelHistoryEndpoint, params, function(error, response) {
@@ -94,7 +96,7 @@ module.exports.main = function(event, context, callback) {
                 function(error, response) {
                     if (error) {
                         console.error(error);
-                        callback(true);
+                        Utils.sendWebhook(event.body.response_url, Config.errorMessage);
                         return;
                     }
 
@@ -112,7 +114,7 @@ module.exports.main = function(event, context, callback) {
                     //If no functions are returned, return an error
                     if (!functions) {
                         console.log("Error getting functions");
-                        callback(true);
+                        Utils.sendWebhook(event.body.response_url, Config.errorMessage);
                         return;
                     }
 
@@ -120,7 +122,7 @@ module.exports.main = function(event, context, callback) {
                         if (functionError) {
                             console.error("Error invoking child lambda function");
                             console.error(functionError);
-                            callback(true);
+                            Utils.sendWebhook(event.body.response_url, Config.errorMessage);
                             return;
                         }
 
@@ -136,14 +138,14 @@ module.exports.main = function(event, context, callback) {
                         };
 
                         if (event.body.text.split(" ").indexOf("public") > -1) {
-                          message.response_type = "in_channel";
+                            message.response_type = "in_channel";
                         }
 
                         console.log(message);
 
                         console.log("End gateway function");
 
-                        callback(null, message);
+                        Utils.sendWebhook(event.body.response_url, message);
                     });
                 }
             );

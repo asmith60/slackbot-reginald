@@ -24,7 +24,6 @@
   "dependencies": {
     "async": "^2.0.1",
     "dotenv": "^2.0.0",
-    "require-directory": "^2.1.1",
     "sentiment": "^2.0.0",
     "slack-node": "^0.1.8"
   }

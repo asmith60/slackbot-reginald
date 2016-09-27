@@ -8,11 +8,11 @@ The only data that is stored by Reginald is the OAuth information necessary to a
 
 ## Third Party Services
 
-Reginald run on Amazon Web Services. Please refer to the AWS Privacy Policy for more details: https://aws.amazon.com/privacy/ .
+Reginald runs on Amazon Web Services. Please refer to the AWS Privacy Policy for more details: https://aws.amazon.com/privacy/ .
 
 ## Advertising
 
-Reginald does not display any advertisements, and does not share any data with advertisers.
+Reginald does not display any advertisements and does not share any data with advertisers.
 
 ## Policy
 

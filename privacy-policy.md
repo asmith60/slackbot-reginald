@@ -12,7 +12,7 @@ Reginald run on Amazon Web Services. Please refer to the AWS Privacy Policy for 
 
 ## Advertising
 
-Simple Poll does not display any advertisements, and does not share any data with advertisers.
+Reginald does not display any advertisements, and does not share any data with advertisers.
 
 ## Policy
 

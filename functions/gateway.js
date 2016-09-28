@@ -39,7 +39,7 @@ module.exports.main = function(event, context, callback) {
 
     if (event.body.text.split(" ")[0] === "help") {
         console.log("Responding with \"help\" output");
-        callback(Config.errorMessage);
+        callback(null, Config.helpMessage);
         return;
     }
 

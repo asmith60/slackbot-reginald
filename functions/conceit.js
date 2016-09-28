@@ -1,6 +1,12 @@
 'use strict';
 
 module.exports.main = function(event, context, callback) {
+    if (event.test) {
+        callback(null, {
+            test: "success"
+        });
+        return;
+    }
     var total = 0,
         result = 0,
         phrase = "",

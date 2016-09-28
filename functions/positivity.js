@@ -3,6 +3,12 @@
 var sentiment = require('sentiment');
 
 module.exports.main = function(event, context, callback) {
+    if (event.test) {
+        callback(null, {
+            test: "success"
+        });
+        return;
+    }
     var result = 0,
         response = "",
         message = "",

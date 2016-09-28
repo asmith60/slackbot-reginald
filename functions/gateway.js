@@ -7,25 +7,39 @@ var Async = require('async');
 var Config = require('../lib/config.js');
 var Utils = require('../lib/utils.js');
 
-module.exports.main = function(event, context) {
+module.exports.main = function(event, context, callback) {
     console.log("Begin gateway function");
+
+    //Validate verifiction token
+    if (event.body.token !== Config.verifyToken) {
+        console.error("Verification token mismatch! This request did not come from Slack");
+        callback(Config.errorMessage);
+        return;
+    }
+    //If request is a test, return success
+    if (event.test) {
+        callback(null, {
+            test: "success"
+        });
+        return;
+    }
     //Validate channel ID exists
     if (!event.body.channel_id) {
         console.error("Could not retrieve channel id from event");
-        Utils.sendWebhook(event.body.response_url, Config.errorMessage);
+        callback(Config.errorMessage);
         return;
     }
 
     //Validate user ID exists
     if (!event.body.user_id) {
         console.error("Could not retrieve user id from event");
-        Utils.sendWebhook(event.body.response_url, Config.errorMessage);
+        callback(Config.errorMessage);
         return;
     }
 
     if (event.body.text.split(" ")[0] === "help") {
         console.log("Responding with \"help\" output");
-        Utils.sendWebhook(event.body.response_url, Config.helpMessage);
+        callback(Config.errorMessage);
         return;
     }
 
@@ -55,7 +69,7 @@ module.exports.main = function(event, context) {
         function(err, data) {
             if (err) {
                 console.error(err);
-                Utils.sendWebhook(event.body.response_url, Config.errorMessage);
+                callback(Config.errorMessage);
                 return;
             }
 
@@ -63,7 +77,7 @@ module.exports.main = function(event, context) {
 
             if (!token) {
                 console.error("Error token not found");
-                Utils.sendWebhook(event.body.response_url, Config.errorMessage);
+                callback(Config.errorMessage);
                 return;
             }
 
@@ -96,7 +110,7 @@ module.exports.main = function(event, context) {
                 function(error, response) {
                     if (error) {
                         console.error(error);
-                        Utils.sendWebhook(event.body.response_url, Config.errorMessage);
+                        callback(Config.errorMessage);
                         return;
                     }
 
@@ -114,7 +128,7 @@ module.exports.main = function(event, context) {
                     //If no functions are returned, return an error
                     if (!functions) {
                         console.log("Error getting functions");
-                        Utils.sendWebhook(event.body.response_url, Config.errorMessage);
+                        callback(Config.errorMessage);
                         return;
                     }
 
@@ -122,7 +136,7 @@ module.exports.main = function(event, context) {
                         if (functionError) {
                             console.error("Error invoking child lambda function");
                             console.error(functionError);
-                            Utils.sendWebhook(event.body.response_url, Config.errorMessage);
+                            callback(Config.errorMessage);
                             return;
                         }
 
@@ -145,7 +159,7 @@ module.exports.main = function(event, context) {
 
                         console.log("End gateway function");
 
-                        Utils.sendWebhook(event.body.response_url, message);
+                        callback(null, message);
                     });
                 }
             );

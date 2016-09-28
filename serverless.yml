@@ -25,29 +25,43 @@ package:
     - .git
     - .gitignore
     - event.json
+    - .jshintrc
 
 functions:
   gateway:
     handler: handler.gateway
-    memorySize: 1536
+    memorySize: 512
+    timeout: 10
     events:
       - http:
           path: reginald
           method: post
   oauth:
     handler: handler.oauth
+    memorySize: 128
+    timeout: 10
     events:
       - http:
           path: reginald/oauth
           method: get
   participation:
     handler: handler.participation
+    memorySize: 128
   positivity:
     handler: handler.positivity
+    memorySize: 128
   negativity:
     handler: handler.negativity
+    memorySize: 128
   conceit:
     handler: handler.conceit
+    memorySize: 128
+  ping:
+    handler: handler.ping
+    memorySize: 128
+    timeout: 10
+    events:
+      - schedule: rate(10 minutes)
 
 
 resources:

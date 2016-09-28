@@ -1,18 +1,14 @@
 'use strict';
 
 module.exports.gateway = function(event, context, callback) {
-    var Utils = require('./lib/utils.js');
-    var message = { text: "*Chat Behavior Report*"};
-    if (event.body.text.split(" ").indexOf("public") > -1) {
-        message.response_type = "in_channel";
-    } else {
-        message.response_type = "ephemeral";
-    }
-    Utils.sendWebhook(event.body.response_url, message);
-    message.text = "*End Report*";
-    callback(null, message);
     var Gateway = require("./functions/gateway.js");
-    Gateway.main(event, context);
+    Gateway.main(event, context, function(err, data) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        callback(null, data);
+    });
 };
 
 module.exports.participation = function(event, context, callback) {
@@ -62,6 +58,17 @@ module.exports.conceit = function(event, context, callback) {
 module.exports.oauth = function(event, context, callback) {
     var Oauth = require("./functions/oauth.js");
     Oauth.main(event, context, function(err, data) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+module.exports.ping = function(event, context, callback) {
+    var Ping = require("./functions/ping.js");
+    Ping.main(event, context, function(err, data) {
         if (err) {
             callback(err);
             return;

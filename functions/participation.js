@@ -1,6 +1,13 @@
 'use strict';
 
 module.exports.main = function(event, context, callback) {
+    console.log("Inside participation");
+    if (event.test) {
+        callback(null, {
+            test: "success"
+        });
+        return;
+    }
     var response = "",
         count = 0,
         total = 0,

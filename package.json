@@ -1,7 +1,7 @@
 {
   "name": "slackbot-reginald",
   "version": "1.0.0",
-  "description": "Reginald the Slackbot",
+  "description": "Reginald analyzes Slack chat history to provide users with an overview of how their in-chat behavior is perceived by other users. Metrics returned include participation, positivity, negativity, and conceit. The metrics are calculated using only the last 1000 posts in the current channel. This means a user's scores will be different in each channel and will change over time.",
   "main": "handler.js",
   "scripts": {
     "test": "echo \"No tests yet\""

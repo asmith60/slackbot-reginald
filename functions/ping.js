@@ -10,12 +10,12 @@ module.exports.main = function(event, context, callback) {
         test: true
     });
 
-    var functions = Utils.getFunctions(event.stage, null, payload);
+    var functions = Utils.getFunctions(Config.stage, null, payload);
 
     var lambda = new AWS.Lambda();
     functions.gateway = function(cb) {
         var params = {
-            FunctionName: Config.getArnString(event.stage) + "gateway",
+            FunctionName: Config.getArnString(Config.stage) + "gateway",
             Payload: payload,
         };
         console.log("Begin gateway function");

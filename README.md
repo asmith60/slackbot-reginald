@@ -58,18 +58,19 @@ sls deploy
 
 ## Environment Variables
 
-To set environment variables that can be referenced in the Lambda functions, you must create and populate a file called .env in the root of the project. The current list of environment variables is:
+To set environment variables that can be referenced in the Lambda functions, you must create and populate a file called .env in the root of the project. The current list of configurable environment variables can be found below.
 
-* AWS_ACCOUNT_ID: ID of the AWS account that resources are deploying to
+* AWS_ACCOUNT_ID: ID of the AWS account that resources are deploying to **Required**
 * BOT_NAME: Name of the Slackbot - *Default is "slackbot-reginald"*
-* CLIENT_ID: ID issued by Slack to the integration
-* CLIENT_SECRET: Secret issued by Slack to the integration
+* CLIENT_ID: ID issued by Slack to the integration **Required**
+* CLIENT_SECRET: Secret issued by Slack to the integration **Required**
 * CHANNEL_HISTORY_ENDPOINT: URI that can be called to get Slack channel history - *Default is "channels.history"*
+* DEV_TOKEN: Developer token issued by Slack for testing integrations - *If a developer token is provided, it will be used. Otherwise, the app will go through the normal OAuth flow*
 * OAUTH_ACCESS_ENDPOINT: URI that can be called to get a Slack OAuth token - *Default is "oauth.access"*
 * TEAMS_TABLE_NAME: Name of the DynamoDB table used to store team OAuth info - *Default is "Teams"*
-* VERIFY_TOKEN: Verification token issued by Slack to the integration
+* VERIFY_TOKEN: Verification token issued by Slack to the integration **Required**
 
-EXAMPLE:
+EXAMPLE .env file:
 ```
 CHANNEL_HISTORY_ENDPOINT=channels.history
 OAUTH_ACCESS_ENDPOINT=oauth.access

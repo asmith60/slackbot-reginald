@@ -10,17 +10,17 @@ var Utils = require('../lib/utils.js');
 module.exports.main = function(event, context, callback) {
     console.log("Begin gateway function");
 
-    //Validate verifiction token
-    if (event.body.token !== Config.verifyToken) {
-        console.error("Verification token mismatch! This request did not come from Slack");
-        callback(Config.errorMessage);
-        return;
-    }
     //If request is a test, return success
     if (event.test) {
         callback(null, {
             test: "success"
         });
+        return;
+    }
+    //Validate verifiction token
+    if (!event.body.token || event.body.token !== Config.verifyToken) {
+        console.error("Verification token mismatch! This request did not come from Slack");
+        callback(Config.errorMessage);
         return;
     }
     //Validate channel ID exists
@@ -73,8 +73,15 @@ module.exports.main = function(event, context, callback) {
                 return;
             }
 
-            var token = data[0].Item.accessToken.S;
+            //Set token
+            var token;
+            if (Config.devToken) {
+              token = Config.devToken;
+            } else {
+              token = data[0].Item.accessToken.S;
+            }
 
+            //Validate that there is a token
             if (!token) {
                 console.error("Error token not found");
                 callback(Config.errorMessage);

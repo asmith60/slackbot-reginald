@@ -8,8 +8,6 @@ var Config = require('../lib/config.js');
 var Utils = require('../lib/utils.js');
 
 module.exports.main = function(event, context, callback) {
-    console.log("Begin gateway function");
-
     //If request is a test, return success
     if (event.test) {
         callback(null, {
@@ -17,6 +15,7 @@ module.exports.main = function(event, context, callback) {
         });
         return;
     }
+    console.log("Begin gateway function");
     //Validate verifiction token
     if (!event.body.token || event.body.token !== Config.verifyToken) {
         console.error("Verification token mismatch! This request did not come from Slack");

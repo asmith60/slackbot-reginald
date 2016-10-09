@@ -19,23 +19,34 @@ module.exports.main = function(event, context, callback) {
     //Validate verifiction token
     if (!event.body.token || event.body.token !== Config.verifyToken) {
         console.error("Verification token mismatch! This request did not come from Slack");
-        callback(Config.errorMessage);
+        callback(null, Config.errorMessage);
         return;
     }
+
+    //Validate that the request came from a public channel
+    if (!event.body.channel_name || event.body.channel_name === 'directmessage') {
+        console.error("Requests must come from a public channel");
+        callback(null, {
+            text: "I cannot analyze behavior in direct messages!"
+        });
+        return;
+    }
+
     //Validate channel ID exists
     if (!event.body.channel_id) {
         console.error("Could not retrieve channel id from event");
-        callback(Config.errorMessage);
+        callback(null, Config.errorMessage);
         return;
     }
 
     //Validate user ID exists
     if (!event.body.user_id) {
         console.error("Could not retrieve user id from event");
-        callback(Config.errorMessage);
+        callback(null, Config.errorMessage);
         return;
     }
 
+    //If first arguemnt is help, then respond with help message
     if (event.body.text.split(" ")[0] === "help") {
         console.log("Responding with \"help\" output");
         callback(null, Config.helpMessage);
@@ -68,22 +79,22 @@ module.exports.main = function(event, context, callback) {
         function(err, data) {
             if (err) {
                 console.error(err);
-                callback(Config.errorMessage);
+                callback(null, Config.errorMessage);
                 return;
             }
 
             //Set token
             var token;
             if (Config.devToken) {
-              token = Config.devToken;
+                token = Config.devToken;
             } else {
-              token = data[0].Item.accessToken.S;
+                token = data[0].Item.accessToken.S;
             }
 
             //Validate that there is a token
             if (!token) {
                 console.error("Error token not found");
-                callback(Config.errorMessage);
+                callback(null, Config.errorMessage);
                 return;
             }
 
@@ -116,7 +127,7 @@ module.exports.main = function(event, context, callback) {
                 function(error, response) {
                     if (error) {
                         console.error(error);
-                        callback(Config.errorMessage);
+                        callback(null, Config.errorMessage);
                         return;
                     }
 
@@ -134,7 +145,7 @@ module.exports.main = function(event, context, callback) {
                     //If no functions are returned, return an error
                     if (!functions) {
                         console.log("Error getting functions");
-                        callback(Config.errorMessage);
+                        callback(null, Config.errorMessage);
                         return;
                     }
 
@@ -142,7 +153,7 @@ module.exports.main = function(event, context, callback) {
                         if (functionError) {
                             console.error("Error invoking child lambda function");
                             console.error(functionError);
-                            callback(Config.errorMessage);
+                            callback(null, Config.errorMessage);
                             return;
                         }
 

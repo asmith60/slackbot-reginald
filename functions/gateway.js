@@ -27,7 +27,7 @@ module.exports.main = function(event, context, callback) {
     if (!event.body.channel_name || event.body.channel_name === 'directmessage') {
         console.error("Requests must come from a public channel");
         callback(null, {
-            text: "I cannot analyze behavior in direct messages!"
+            text: "I cannot analyze chat behavior in direct messages!"
         });
         return;
     }
@@ -54,7 +54,7 @@ module.exports.main = function(event, context, callback) {
     }
 
     //Get Oauth info, then invoke channel history
-    Async.series([
+    Async.waterfall([
             function(cb) {
                 var dynamodb = new AWS.DynamoDB();
                 var params = {
@@ -72,114 +72,109 @@ module.exports.main = function(event, context, callback) {
                         cb("Error retrieving Oauth info");
                         return;
                     }
-                    cb(null, data);
+                    cb(null, data.Item.accessToken.S);
+                });
+            },
+            function(token, cb) {
+                //Set token to development token if it exists
+                if (Config.devToken) {
+                    token = Config.devToken;
+                }
+
+                //Validate that there is a token
+                if (!token) {
+                    cb("Error token not found");
+                    return;
+                }
+
+                //Get Slack channel history, then call child functions
+
+
+                //Construct slack API object with Oauth token
+                var slack = new Slack(token);
+
+                //Build params
+                var params = {
+                    channel: event.body.channel_id,
+                    count: 1000
+                };
+
+                //Call Slack API to get history
+                slack.api(Config.channelHistoryEndpoint, params, function(err, response) {
+                    if (err) {
+                        console.error("Error calling Slack API for channel history");
+                        cb(err);
+                        return;
+                    }
+                    if (response.ok !== true) {
+                        console.error("Error with Slack API channel history response");
+                        cb(response);
+                        return;
+                    }
+                    cb(null, response.messages);
                 });
             }
         ],
-        function(err, data) {
+        function(err, messages) {
             if (err) {
                 console.error(err);
                 callback(null, Config.errorMessage);
                 return;
             }
 
-            //Set token
-            var token;
-            if (Config.devToken) {
-                token = Config.devToken;
-            } else {
-                token = data[0].Item.accessToken.S;
-            }
-
-            //Validate that there is a token
-            if (!token) {
-                console.error("Error token not found");
+            //Validate that there are messages
+            if (!messages) {
+                console.error("Error getting messages");
                 callback(null, Config.errorMessage);
                 return;
             }
 
-            //Get Slack channel history, then call child functions
-            Async.series([
-                    function(cb) {
-                        //Construct slack API object with Oauth token
-                        var slack = new Slack(token);
-                        //Build params
-                        var params = {
-                            channel: event.body.channel_id,
-                            count: 1000
-                        };
-                        //Call Slack API to get history
-                        slack.api(Config.channelHistoryEndpoint, params, function(error, response) {
-                            if (error) {
-                                console.error("Error calling Slack API for channel history");
-                                cb(error);
-                                return;
-                            }
-                            if (response.ok !== true) {
-                                console.error("Error with Slack API channel history response");
-                                cb(response);
-                                return;
-                            }
-                            cb(null, response.messages);
-                        });
-                    }
-                ],
-                function(error, response) {
-                    if (error) {
-                        console.error(error);
-                        callback(null, Config.errorMessage);
-                        return;
-                    }
+            //Create payload for child functions
+            var payload = JSON.stringify({
+                userId: event.body.user_id,
+                messages: messages
+            });
 
-                    var messages = response[0];
+            //Get function based on text argument
+            var functions = Utils.getFunctions(event.stage, event.body.text, payload);
 
-                    //Create payload for child functions
-                    var payload = JSON.stringify({
-                        userId: event.body.user_id,
-                        messages: messages
-                    });
+            //If no functions are returned, return an error
+            if (!functions) {
+                console.error("Error getting functions");
+                callback(null, Config.errorMessage);
+                return;
+            }
 
-                    //Get function based on text argument
-                    var functions = Utils.getFunctions(event.stage, event.body.text, payload);
-
-                    //If no functions are returned, return an error
-                    if (!functions) {
-                        console.log("Error getting functions");
-                        callback(null, Config.errorMessage);
-                        return;
-                    }
-
-                    Async.parallel(functions, function(functionError, results) {
-                        if (functionError) {
-                            console.error("Error invoking child lambda function");
-                            console.error(functionError);
-                            callback(null, Config.errorMessage);
-                            return;
-                        }
-
-                        var attachments = [];
-
-                        //Loop through child function results and push to attachments array
-                        Object.keys(results).forEach(function(key) {
-                            attachments.push(JSON.parse(results[key].Payload));
-                        });
-
-                        var message = {
-                            attachments: attachments
-                        };
-
-                        if (event.body.text.split(" ").indexOf("public") > -1) {
-                            message.response_type = "in_channel";
-                        }
-
-                        console.log(message);
-
-                        console.log("End gateway function");
-
-                        callback(null, message);
-                    });
+            //Invoke all chid functions in parallel
+            Async.parallel(functions, function(error, results) {
+                if (error) {
+                    console.error("Error invoking child lambda function");
+                    console.error(error);
+                    callback(null, Config.errorMessage);
+                    return;
                 }
-            );
+
+                var attachments = [];
+
+                //Loop through child function results and push to attachments array
+                Object.keys(results).forEach(function(key) {
+                    attachments.push(JSON.parse(results[key].Payload));
+                });
+
+                var message = {
+                    attachments: attachments
+                };
+
+                if (event.body.text.split(" ").indexOf("public") > -1) {
+                    message.response_type = "in_channel";
+                }
+
+                console.log(message);
+
+                console.log("End gateway function");
+
+                callback(null, message);
+            });
         }
     );
 };
